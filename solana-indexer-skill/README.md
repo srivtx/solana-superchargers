@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="./assets/indexer.jpg"><img src="./assets/indexer.jpg" width="500" alt="solana-indexer skill" /></a>
+<a href="./assets/indexer.webp"><img src="./assets/indexer.webp" width="500" alt="solana-indexer skill" /></a>
 
 </div>
 
