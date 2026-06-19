@@ -2,90 +2,119 @@
 #
 # install.sh — per-skill installer for solana-indexer-skill
 #
-# This is a thin wrapper that delegates to the top-level ./install.sh
-# at the repo root. Most users should run that one instead:
+# Two modes:
 #
-#   curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/install.sh | bash -s -- add solana-indexer
+#   1. Inside the repo (rare):
+#        cd solana-superchargers/solana-indexer-skill
+#        ./install.sh                  # installs just this skill
+#        ./install.sh remove           # uninstalls it
 #
-# Or from a clone:
+#   2. Standalone (the common one — for sharing as a one-liner):
 #
-#   cd solana-superchargers && ./install.sh add solana-indexer
+#      The "curated link" for THIS skill:
 #
-# This per-skill file exists for the case where you want to install just
-# this skill from inside its own subdirectory, with no args. It then
-# installs itself only.
+#        curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/solana-indexer-skill/install.sh | bash
+#
+#      When you curl|bash this, we download the top-level multi-skill
+#      installer to /tmp and delegate to it, so all installs go through
+#      one source of truth.
+#
+# The top-level installer is the multi-skill manager. This per-skill
+# script is just a thin "share one URL for this skill" wrapper.
 
 set -euo pipefail
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_ROOT="$( cd -- "${SCRIPT_DIR}/.." &> /dev/null && pwd )"
-
-# If we have args, delegate to the multi-skill installer at the repo root
-if [[ $# -gt 0 && -f "${REPO_ROOT}/install.sh" ]]; then
-  exec "${REPO_ROOT}/install.sh" "$@"
-fi
-
-# No args + repo root has the multi-skill installer → delegate add of self
-if [[ $# -eq 0 && -f "${REPO_ROOT}/install.sh" ]]; then
-  exec "${REPO_ROOT}/install.sh" add solana-indexer
-fi
-
-# Standalone mode (sparse checkout) — copy this skill's files directly
-: "${CLAUDE_SKILLS_HOME:=$HOME/.claude/skills}"
-CODEX_SKILLS_HOME="${CODEX_SKILLS_HOME:-$HOME/.codex/skills}"
 SKILL_NAME="solana-indexer"
-DEST="${CLAUDE_SKILLS_HOME}/${SKILL_NAME}"
 
+# Where skills install. Override with CLAUDE_SKILLS_HOME=/path ./install.sh
+: "${CLAUDE_SKILLS_HOME:=$HOME/.claude/skills}"
+
+# ── detect mode ──────────────────────────────────────────────────────
+# We're "inside the repo" if the parent directory has the multi-skill install.sh.
+# Otherwise we're a piped curl|bash call (SCRIPT_DIR will be /tmp or a temp dir).
+
+inside_repo=false
+if [[ -f "${REPO_ROOT}/install.sh" ]]; then
+  # Verify the parent is actually the repo (has SKILLS.md, .git, etc.)
+  if [[ -f "${REPO_ROOT}/SKILLS.md" ]] || [[ -d "${REPO_ROOT}/.git" ]]; then
+    inside_repo=true
+  fi
+fi
+
+if [[ "$inside_repo" == "true" ]]; then
+  # Mode 1: inside the repo. Delegate add/remove to the multi-skill installer.
+  # For help and other commands, handle locally so the per-skill docs are useful
+  # when the user is exploring the skill directory.
+  cmd="${1:-add}"
+  case "$cmd" in
+    add|remove|rm)
+      if [[ $# -le 1 ]]; then
+        # ./install.sh or ./install.sh add or ./install.sh remove
+        # Default to operating on this skill.
+        exec "${REPO_ROOT}/install.sh" "$cmd" "$SKILL_NAME"
+      else
+        # ./install.sh add foo bar → ./install.sh add foo bar
+        exec "${REPO_ROOT}/install.sh" "$@"
+      fi
+      ;;
+  esac
+  # Fall through to standalone behavior for help etc.
+fi
+
+# ── Mode 2: standalone (curl|bash) ────────────────────────────────────
+# We're not inside the repo. The skill files aren't here — they were
+# never rsynced. We have two options:
+#   a) Download the multi-skill installer and delegate to it
+#   b) Download just this skill as a tarball and install directly
+#
+# (a) is simpler and uses the same code path as everyone else.
+# (b) is faster but requires the repo to publish tarballs.
+
+# Default behavior: download the multi-skill installer and delegate.
+TEMP_INSTALLER="$(mktemp -t solana-superchargers-install.XXXXXX.sh)"
+
+# Where to fetch the installer from. Override for forks/mirrors.
+: "${SOLANA_SUPERCHARGERS_BASE_URL:=https://raw.githubusercontent.com/srivtx/solana-superchargers/main}"
+INSTALLER_URL="${SOLANA_SUPERCHARGERS_BASE_URL}/install.sh"
+
+# What the user actually wanted to do
 cmd="${1:-add}"
 shift || true
 
+# Some commands we handle ourselves (no installer needed)
 case "$cmd" in
-  add)
-    echo "→ installing ${SKILL_NAME} to ${DEST}/"
-    mkdir -p "${DEST}"
-    rsync -a --delete \
-      --exclude='install.sh' \
-      --exclude='.git' \
-      --exclude='**/node_modules' \
-      --exclude='**/target' \
-      --exclude='**/.DS_Store' \
-      --exclude='**/dist' \
-      "${SCRIPT_DIR}/" "${DEST}/"
-    echo "  ✓ installed"
-    if command -v codex &> /dev/null; then
-      mkdir -p "${CODEX_SKILLS_HOME}/${SKILL_NAME}"
-      rsync -a --delete \
-        --exclude='install.sh' \
-        --exclude='.git' \
-        --exclude='**/node_modules' \
-        --exclude='**/target' \
-        --exclude='**/.DS_Store' \
-        --exclude='**/dist' \
-        "${SCRIPT_DIR}/" "${CODEX_SKILLS_HOME}/${SKILL_NAME}/"
-      echo "  ✓ mirrored to ${CODEX_SKILLS_HOME}/${SKILL_NAME}/"
-    fi
-    echo ""
-    echo "Done. Restart Claude Code or Codex to pick up the skill."
-    echo "Tip: from a full clone, use ../install.sh for the multi-skill manager."
-    ;;
-  remove|rm)
-    rm -rf "${DEST}"
-    rm -rf "${CODEX_SKILLS_HOME}/${SKILL_NAME}" 2>/dev/null || true
-    echo "removed ${SKILL_NAME}"
-    ;;
-  *)
+  help|--help|-h)
     cat <<EOF
-solana-indexer-skill installer (standalone fallback)
+${SKILL_NAME} — per-skill installer
 
-Most users should run the top-level installer from the repo root:
-  cd solana-superchargers && ./install.sh add solana-indexer
+Curated one-liner for THIS skill:
 
-This file works standalone if you have only this skill's directory.
+  curl -fsSL ${BASE_URL:-${INSTALLER_URL%/*}}/solana-indexer-skill/install.sh | bash
 
-Usage:
-  ./install.sh            Install this skill
-  ./install.sh add        (same, explicit)
-  ./install.sh remove     Uninstall this skill
-  ./install.sh help       Show this message
+That downloads this script and installs the ${SKILL_NAME} skill into
+Claude Code and Codex. Equivalent to the multi-skill manager's
+  ./install.sh add ${SKILL_NAME}
+
+Commands (when running standalone):
+  install.sh                Install this skill (default)
+  install.sh add            (same, explicit)
+  install.sh remove         Uninstall this skill
+  install.sh help           Show this message
 EOF
+    exit 0
     ;;
 esac
+
+# Fetch the multi-skill installer
+echo "→ fetching solana-superchargers installer from ${INSTALLER_URL}"
+if ! curl -fsSL "$INSTALLER_URL" -o "$TEMP_INSTALLER"; then
+  echo "✗ failed to download installer from $INSTALLER_URL" >&2
+  exit 1
+fi
+chmod +x "$TEMP_INSTALLER"
+trap 'rm -f "$TEMP_INSTALLER"' EXIT
+
+# Delegate the actual install/uninstall to the real installer
+echo "→ delegating to multi-skill installer"
+exec "$TEMP_INSTALLER" "$cmd" "$SKILL_NAME" "$@"

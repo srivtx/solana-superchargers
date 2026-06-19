@@ -4,6 +4,23 @@ A Claude Code / Codex skill for building **custom indexers** on Solana. Covers G
 
 > **Part of [solana-superchargers](https://github.com/srivtx/solana-superchargers)** — a curated set of skills that fill unclaimed gaps in the Solana AI Kit ecosystem.
 
+## Install this skill
+
+The "curated link" for this skill — share this one-liner:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/solana-indexer-skill/install.sh | bash
+```
+
+That's it. The installer:
+1. Downloads the multi-skill manager from this repo
+2. Runs `add solana-indexer`
+3. Copies the skill to `~/.claude/skills/solana-indexer/` and `~/.codex/skills/solana-indexer/`
+
+Restart Claude Code or Codex to pick it up.
+
+> Want to install everything in the repo? `curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/install.sh | bash -s -- add all`
+
 ## What this skill does
 
 You describe a Solana dApp. The skill routes you to the right approach:
@@ -26,16 +43,6 @@ Plus 3 working examples, 2 agents, 2 commands, and 1 rule.
 The Solana AI Kit ecosystem has hundreds of skills (Helius, QuickNode, light-protocol, vulnhunter, code-recon, etc.) but **no skill teaches how to *build* an indexer**. Helius/QuickNode skills are *consumers* of their streams. The kit's `backend-async.md` has one 20-line polling pattern. This skill fills that gap end-to-end.
 
 Indexers are the backbone of every serious Solana dApp — DeFi dashboards, NFT marketplaces, gaming leaderboards, social graphs, analytics. This skill lets Claude design, build, test, and operate them.
-
-## Install
-
-```bash
-git clone https://github.com/srivtx/solana-superchargers.git
-cd solana-superchargers/solana-indexer-skill
-./install.sh
-```
-
-The installer copies the skill to `~/.claude/skills/solana-indexer/` (and `~/.codex/skills/solana-indexer/` if Codex is detected).
 
 ## Quick start
 
@@ -61,7 +68,7 @@ solana-indexer-skill/
 ├── README.md                 # this file
 ├── LICENSE                   # MIT
 ├── TODO.md                   # roadmap
-├── install.sh                # copies to ~/.claude/skills/solana-indexer/
+├── install.sh                # per-skill installer (delegates to ../install.sh)
 ├── skill/
 │   ├── SKILL.md              # entry point
 │   └── references/
