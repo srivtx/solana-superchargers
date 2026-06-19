@@ -12,12 +12,18 @@
 - [x] install.sh
 - [x] CLAUDE.md, README, LICENSE
 - [x] Top-level repo with multi-skill structure (`solana-superchargers/`)
-- [ ] Verify minimal-indexer-ts compiles (`npm install && tsc --noEmit`)
-- [ ] Verify geyser-plugin/skeleton builds (`cargo check`)
-- [ ] Add 3-5 golden test fixtures (real mainnet txs)
+- [x] Verify minimal-indexer-ts compiles (`npm install && tsc --noEmit`) — CI passes
+- [x] Verify geyser-plugin/skeleton builds (`cargo check`) — CI passes
+- [x] Top-level + skill LICENSE (MIT)
+- [x] Top-level + skill CHANGELOG.md, CONTRIBUTING.md, SKILLS.md
+- [x] CI: 6 jobs (Skills, TypeScript, Subgraph, Rust, Internal links, Frontmatter)
+- [x] Banner image (WebP, transparent background, blends with GitHub)
+- [x] Solana badge + CI badge + Version badge on both READMEs
+- [x] GitHub topics + description set
+- [x] Push to GitHub: https://github.com/srivtx/solana-superchargers
+- [ ] Add 3-5 golden test fixtures (real mainnet txs) — needs a Helius key
 - [ ] Add demo video / screenshots
 - [ ] Submit to https://superteam.fun/earn/listing/ship-useful-agent-skills-we-can-add-to-solana-ai-kit
-- [ ] Push to GitHub: https://github.com/srivtx/solana-superchargers
 
 ## v0.2 — coverage expansion
 
