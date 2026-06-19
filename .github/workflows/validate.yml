@@ -96,6 +96,11 @@ jobs:
       matrix:
         path:
           - solana-indexer-skill/skill/examples/geyser-plugin/skeleton
+    env:
+      # Use the modern sparse registry protocol (HTTP/1.1) instead of the
+      # legacy git-based default. Solves the [16] Error in the HTTP2
+      # framing layer that randomly hits when fetching deps from crates.io.
+      CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
