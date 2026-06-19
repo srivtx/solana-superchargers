@@ -87,7 +87,7 @@ Use a custom Geyser plugin (instead of Yellowstone gRPC) when:
 - You need custom deserialization in the validator (avoid 2x parsing)
 - You can run a validator (or partner with one that does)
 
-For everything else, use the Yellowstone gRPC client (`@triton-one/yellowstone-grpc` or Rust client). See [`../../references/geyser-plugins.md`](../../references/geyser-plugins.md).
+For everything else, use the Yellowstone gRPC client (`@triton-one/yellowstone-grpc` or Rust client). See [`../../../references/geyser-plugins.md`](../../../references/geyser-plugins.md).
 
 ## Pitfalls
 
@@ -98,8 +98,8 @@ For everything else, use the Yellowstone gRPC client (`@triton-one/yellowstone-g
 
 ## Related
 
-- Parent skill: [`solana-indexer-skill`](../../SKILL.md)
-- Geyser plugin docs: [`../../references/geyser-plugins.md`](../../references/geyser-plugins.md)
-- Indexer architecture: [`../../references/indexer-architecture.md`](../../references/indexer-architecture.md)
+- Parent skill: [`solana-indexer-skill`](../../../SKILL.md)
+- Geyser plugin docs: [`../../../references/geyser-plugins.md`](../../../references/geyser-plugins.md)
+- Indexer architecture: [`../../../references/indexer-architecture.md`](../../../references/indexer-architecture.md)
 - Solana Geyser plugin interface: https://github.com/solana-labs/solana/blob/master/geyser-plugin-interface
 - Yellowstone gRPC (alternative to custom plugin): https://github.com/rpcpool/yellowstone-grpc
