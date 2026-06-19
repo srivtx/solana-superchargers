@@ -1,0 +1,149 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Validate every skill in the repo
+  skills:
+    name: Skills
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all skills install correctly
+        run: ./install.sh verify
+
+      - name: List installed skills
+        run: ./install.sh list
+
+      - name: List presets
+        run: ./install.sh presets
+
+      - name: Install + remove smoke test
+        run: |
+          set -e
+          TMP=$(mktemp -d)
+          CLAUDE_SKILLS_HOME=$TMP ./install.sh add all
+          for skill in solana-indexer; do
+            [ -d "$TMP/$skill" ] || (echo "missing: $skill" && exit 1)
+            [ -f "$TMP/$skill/skill/SKILL.md" ] || (echo "missing SKILL.md: $skill" && exit 1)
+          done
+          CLAUDE_SKILLS_HOME=$TMP ./install.sh remove --all
+          [ -z "$(ls -A $TMP)" ] || (echo "remove --all left files" && exit 1)
+          rm -rf $TMP
+
+  typecheck:
+    name: TypeScript examples
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        path:
+          - solana-indexer-skill/skill/examples/minimal-indexer-ts
+          - solana-indexer-skill/skill/examples/subgraph-template
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install deps
+        working-directory: ${{ matrix.path }}
+        run: npm install --no-fund --no-audit
+      - name: Type check
+        working-directory: ${{ matrix.path }}
+        run: npx tsc --noEmit
+
+  rust:
+    name: Rust examples
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        path:
+          - solana-indexer-skill/skill/examples/geyser-plugin/skeleton
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ matrix.path }}
+      - name: cargo check
+        working-directory: ${{ matrix.path }}
+        run: cargo check --all-targets
+
+  links:
+    name: Internal links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check internal markdown cross-links
+        run: |
+          python3 - <<'EOF'
+          import os, re, sys
+          ROOT = "."
+          broken = 0
+          total = 0
+          for dirpath, dirs, files in os.walk(ROOT):
+              if any(p in dirpath for p in ['node_modules', 'target', '.git', 'dist']):
+                  continue
+              for fn in files:
+                  if not fn.endswith('.md'):
+                      continue
+                  fpath = os.path.join(dirpath, fn)
+                  with open(fpath) as f:
+                      content = f.read()
+                  for m in re.finditer(r'\[([^\]]+)\]\(([^)]+\.md[^)]*)\)', content):
+                      ref = m.group(2)
+                      if ref.startswith('http'):
+                          continue
+                      target = os.path.normpath(os.path.join(os.path.dirname(fpath), ref))
+                      total += 1
+                      if not os.path.isfile(target):
+                          print(f"BROKEN: {fpath} -> {ref}")
+                          broken += 1
+          print(f"\n{total} links, {broken} broken")
+          sys.exit(1 if broken else 0)
+          EOF
+
+  frontmatter:
+    name: Frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify frontmatter on skill files
+        run: |
+          python3 - <<'EOF'
+          import os, re, sys
+          ROOT = "."
+          errors = 0
+          for dirpath, dirs, files in os.walk(os.path.join(ROOT, "solana-indexer-skill")):
+              if any(p in dirpath for p in ['node_modules', 'target', '.git']):
+                  continue
+              for fn in files:
+                  if not fn.endswith('.md'):
+                      continue
+                  # Required: skill/SKILL.md, agents/*.md
+                  fpath = os.path.join(dirpath, fn)
+                  relpath = os.path.relpath(fpath, ROOT)
+                  is_skill_entry = relpath.endswith(os.path.join('skill', 'SKILL.md'))
+                  is_agent = '/agents/' in relpath
+                  if not (is_skill_entry or is_agent):
+                      continue
+                  with open(fpath) as f:
+                      content = f.read()
+                  if not re.match(r'^---\nname:\s*\S+', content):
+                      print(f"MISSING name: {relpath}")
+                      errors += 1
+                  if 'description:' not in content[:500]:
+                      print(f"MISSING description: {relpath}")
+                      errors += 1
+          if errors:
+              print(f"\n{errors} frontmatter errors")
+              sys.exit(1)
+          print("all frontmatter valid")
+          EOF

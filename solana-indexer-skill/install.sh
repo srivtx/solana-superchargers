@@ -1,77 +1,91 @@
 #!/usr/bin/env bash
 #
-# install.sh — install solana-indexer-skill into Claude Code / Codex
+# install.sh — per-skill installer for solana-indexer-skill
 #
-# Mirrors the skill into ~/.claude/skills/solana-indexer/ (and ~/.codex/skills/
-# if the codex CLI is detected), so Claude can discover it via the
-# "skill" tool. Existing installs are overwritten.
+# This is a thin wrapper that delegates to the top-level ./install.sh
+# at the repo root. Most users should run that one instead:
 #
-# Idempotent. Re-run after pulling upstream changes.
+#   curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/install.sh | bash -s -- add solana-indexer
+#
+# Or from a clone:
+#
+#   cd solana-superchargers && ./install.sh add solana-indexer
+#
+# This per-skill file exists for the case where you want to install just
+# this skill from inside its own subdirectory, with no args. It then
+# installs itself only.
 
 set -euo pipefail
-
-SKILL_NAME="solana-indexer"
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+REPO_ROOT="$( cd -- "${SCRIPT_DIR}/.." &> /dev/null && pwd )"
 
-# Where the install lives. Override with CLAUDE_SKILLS_HOME=/path ./install.sh
+# If we have args, delegate to the multi-skill installer at the repo root
+if [[ $# -gt 0 && -f "${REPO_ROOT}/install.sh" ]]; then
+  exec "${REPO_ROOT}/install.sh" "$@"
+fi
+
+# No args + repo root has the multi-skill installer → delegate add of self
+if [[ $# -eq 0 && -f "${REPO_ROOT}/install.sh" ]]; then
+  exec "${REPO_ROOT}/install.sh" add solana-indexer
+fi
+
+# Standalone mode (sparse checkout) — copy this skill's files directly
 : "${CLAUDE_SKILLS_HOME:=$HOME/.claude/skills}"
 CODEX_SKILLS_HOME="${CODEX_SKILLS_HOME:-$HOME/.codex/skills}"
+SKILL_NAME="solana-indexer"
+DEST="${CLAUDE_SKILLS_HOME}/${SKILL_NAME}"
 
-echo "→ installing ${SKILL_NAME} to ${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/"
-mkdir -p "${CLAUDE_SKILLS_HOME}/${SKILL_NAME}"
+cmd="${1:-add}"
+shift || true
 
-# Copy everything except the install script and example node_modules
-rsync -a --delete \
-  --exclude='install.sh' \
-  --exclude='.git' \
-  --exclude='**/node_modules' \
-  --exclude='**/target' \
-  --exclude='**/.DS_Store' \
-  --exclude='**/dist' \
-  "${SCRIPT_DIR}/" \
-  "${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/"
+case "$cmd" in
+  add)
+    echo "→ installing ${SKILL_NAME} to ${DEST}/"
+    mkdir -p "${DEST}"
+    rsync -a --delete \
+      --exclude='install.sh' \
+      --exclude='.git' \
+      --exclude='**/node_modules' \
+      --exclude='**/target' \
+      --exclude='**/.DS_Store' \
+      --exclude='**/dist' \
+      "${SCRIPT_DIR}/" "${DEST}/"
+    echo "  ✓ installed"
+    if command -v codex &> /dev/null; then
+      mkdir -p "${CODEX_SKILLS_HOME}/${SKILL_NAME}"
+      rsync -a --delete \
+        --exclude='install.sh' \
+        --exclude='.git' \
+        --exclude='**/node_modules' \
+        --exclude='**/target' \
+        --exclude='**/.DS_Store' \
+        --exclude='**/dist' \
+        "${SCRIPT_DIR}/" "${CODEX_SKILLS_HOME}/${SKILL_NAME}/"
+      echo "  ✓ mirrored to ${CODEX_SKILLS_HOME}/${SKILL_NAME}/"
+    fi
+    echo ""
+    echo "Done. Restart Claude Code or Codex to pick up the skill."
+    echo "Tip: from a full clone, use ../install.sh for the multi-skill manager."
+    ;;
+  remove|rm)
+    rm -rf "${DEST}"
+    rm -rf "${CODEX_SKILLS_HOME}/${SKILL_NAME}" 2>/dev/null || true
+    echo "removed ${SKILL_NAME}"
+    ;;
+  *)
+    cat <<EOF
+solana-indexer-skill installer (standalone fallback)
 
-# Mirror to codex if the codex CLI is installed
-if command -v codex &> /dev/null; then
-  echo "→ codex detected, also installing to ${CODEX_SKILLS_HOME}/${SKILL_NAME}/"
-  mkdir -p "${CODEX_SKILLS_HOME}/${SKILL_NAME}"
-  rsync -a --delete \
-    --exclude='install.sh' \
-    --exclude='.git' \
-    --exclude='**/node_modules' \
-    --exclude='**/target' \
-    --exclude='**/.DS_Store' \
-    --exclude='**/dist' \
-    "${SCRIPT_DIR}/" \
-    "${CODEX_SKILLS_HOME}/${SKILL_NAME}/"
-else
-  echo "→ codex not detected, skipping"
-fi
+Most users should run the top-level installer from the repo root:
+  cd solana-superchargers && ./install.sh add solana-indexer
 
-# Verify the install
-SKILL_FILE="${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/skill/SKILL.md"
-if [[ ! -f "${SKILL_FILE}" ]]; then
-  echo "✗ install failed: ${SKILL_FILE} not found" >&2
-  exit 1
-fi
+This file works standalone if you have only this skill's directory.
 
-# Count what was installed
-REF_COUNT=$(find "${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/skill/references" -name '*.md' | wc -l | tr -d ' ')
-EX_COUNT=$(find "${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/skill/examples" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-AGENT_COUNT=$(find "${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/agents" -name '*.md' | wc -l | tr -d ' ')
-CMD_COUNT=$(find "${CLAUDE_SKILLS_HOME}/${SKILL_NAME}/commands" -name '*.md' | wc -l | tr -d ' ')
-
-echo ""
-echo "✓ installed ${SKILL_NAME}:"
-echo "  → ${REF_COUNT} reference files"
-echo "  → ${EX_COUNT} examples"
-echo "  → ${AGENT_COUNT} agents"
-echo "  → ${CMD_COUNT} commands"
-echo "  → 1 rule"
-echo ""
-echo "Try it: open Claude Code and run"
-echo "  /build-indexer \"index Raydium CLMM swaps on mainnet\""
-echo ""
-echo "Or ask naturally:"
-echo "  \"Help me design a Geyser plugin for Jupiter V6 swaps\""
-echo "  \"What's the best way to backfill 90 days of pool state?\""
+Usage:
+  ./install.sh            Install this skill
+  ./install.sh add        (same, explicit)
+  ./install.sh remove     Uninstall this skill
+  ./install.sh help       Show this message
+EOF
+    ;;
+esac
