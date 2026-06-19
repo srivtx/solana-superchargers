@@ -146,9 +146,9 @@ list_presets() {
     warn "no presets defined"
     return
   fi
-  echo "$presets" | while IFS=$'\t' read -r preset _ list_; do
+  echo "$presets" | while IFS=$'\t' read -r kind pname list_; do
     IFS=',' read -ra arr <<< "$list_"
-    printf "\n  ${C_BOLD}%s${C_RESET}  ${C_DIM}(%d skills)${C_RESET}\n" "$preset" "${#arr[@]}"
+    printf "\n  ${C_BOLD}%s${C_RESET}  ${C_DIM}(%d skills)${C_RESET}\n" "$pname" "${#arr[@]}"
     for s in "${arr[@]}"; do
       printf "    · %s\n" "$s"
     done
@@ -177,10 +177,10 @@ show_info() {
   local kind name rest
   kind=$(echo "$found" | cut -f1)
   name=$(echo "$found" | cut -f2)
-  rest=$(echo "$found" | cut -f3-)
   if [[ "$kind" == "SKILL" ]]; then
+    # Fields: SKILL\t<name>\t<path>\t<category>\t<description>
     local path cat desc
-    IFS=$'\t' read -r _ path cat desc <<< "$found"
+    IFS=$'\t' read -r kind p path cat desc <<< "$found"
     printf "  ${C_BOLD}name${C_RESET}        %s\n" "$name"
     printf "  ${C_BOLD}category${C_RESET}    %s\n" "$cat"
     printf "  ${C_BOLD}path${C_RESET}        %s\n" "$path"
@@ -193,9 +193,9 @@ show_info() {
       printf "  ${C_BOLD}examples${C_RESET}     %s\n" "$ex_count"
     fi
   else
-    # Preset
+    # Preset. Fields: PRESET\t<name>\t<list>
     local list_
-    list_=$(echo "$found" | cut -f3)
+    IFS=$'\t' read -r kind p list_ <<< "$found"
     printf "  ${C_BOLD}preset${C_RESET}       %s\n" "$name"
     printf "  ${C_BOLD}skills${C_RESET}       %s\n" "$list_"
   fi
