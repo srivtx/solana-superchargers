@@ -1,0 +1,61 @@
+# Subgraph schema for Raydium CLMM pools and swaps
+# Compatible with The Graph on Solana
+
+type Pool @entity {
+  id: ID!                          # pubkey as base58
+  ammConfig: Bytes!
+  owner: Bytes!
+  tokenMint0: Bytes!
+  tokenMint1: Bytes!
+  tokenVault0: Bytes!
+  tokenVault1: Bytes!
+  mintDecimals0: Int!
+  mintDecimals1: Int!
+  tickSpacing: Int!
+  liquidity: BigInt!
+  sqrtPriceX64: BigInt!
+  tickCurrent: Int!
+  feeGrowthGlobal0X64: BigInt!
+  feeGrowthGlobal1X64: BigInt!
+  protocolFeesToken0: BigInt!
+  protocolFeesToken1: BigInt!
+  fundFeesToken0: BigInt!
+  fundFeesToken1: BigInt!
+  status: Int!
+  openTime: BigInt!
+  recentEpoch: BigInt!
+  slot: BigInt!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  swaps: [Swap!]! @derivedFrom(field: "pool")
+  totalSwapCount: Int!
+  totalVolumeToken0: BigInt!
+  totalVolumeToken1: BigInt!
+  totalFeesToken0: BigInt!
+  totalFeesToken1: BigInt!
+}
+
+type Swap @entity {
+  id: ID!                          # signature
+  pool: Pool!
+  user: Bytes!                      # fee payer
+  inputMint: Bytes!
+  inputAmount: BigInt!
+  outputMint: Bytes!
+  outputAmount: BigInt!
+  feeAmount: BigInt!
+  sqrtPriceX64: BigInt!             # after swap
+  liquidity: BigInt!                # after swap
+  tick: Int!                        # after swap
+  zeroForOne: Boolean!
+  slot: BigInt!
+  blockTime: BigInt!
+}
+
+type BlockMeta @entity {
+  id: ID!                          # slot
+  blockhash: Bytes!
+  blockTime: BigInt!
+  parentSlot: BigInt!
+  swapCount: Int!
+}

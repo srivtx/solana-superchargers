@@ -1,0 +1,35 @@
+# Subgraph manifest for Solana
+# Compatible with The Graph on Solana. See https://thegraph.com/docs/solana
+
+specVersion: 1.0.0
+schema:
+  file: ./schema.graphql
+dataSources:
+  - name: RaydiumCLMM
+    kind: solana
+    network: mainnet-beta
+    source:
+      address: "CAMMCzo5YL8w4VFF8KVHrK22GgU4tBh1WaxgLsD1YwbF"
+      account: "Raydium CLMM Program"
+      startBlock: 230000000
+    mapping:
+      kind: solana
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Pool
+        - Swap
+      abis:
+        - name: RaydiumClmm
+          file: ./raydium-clmm.json
+      eventHandlers:
+        - event: "swap"
+          handler: handleSwap
+        - event: "liquidityChange"
+          handler: handleLiquidityChange
+        - event: "poolCreated"
+          handler: handlePoolCreated
+      blockHandlers:
+        - handler: handleBlock
+        - event: block
+      file: ./src/mapping.ts
