@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/superchargersim.png" width="600" alt="solana-superchargers" />
+<img src="./assets/supercharger.jpg" width="600" alt="solana-superchargers" />
 
 # solana-superchargers
 
