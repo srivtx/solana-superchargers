@@ -30,6 +30,8 @@
 
 ## Install
 
+### One-liner (recommended)
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/solana-indexer-skill/install.sh | bash
 ```
@@ -37,6 +39,38 @@ curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/so
 Installs to `~/.claude/skills/solana-indexer/` and
 `~/.codex/skills/solana-indexer/` (if Codex is installed). Restart
 Claude Code or Codex.
+
+### From a clone (if you want to inspect first)
+
+```bash
+git clone https://github.com/srivtx/solana-superchargers.git
+cd solana-superchargers
+./install.sh add solana-indexer
+```
+
+### Manual copy (no install script)
+
+```bash
+git clone https://github.com/srivtx/solana-superchargers.git
+
+mkdir -p ~/.claude/skills/solana-indexer
+cp -R solana-superchargers/solana-indexer-skill/skill \
+      solana-superchargers/solana-indexer-skill/agents \
+      solana-superchargers/solana-indexer-skill/commands \
+      solana-superchargers/solana-indexer-skill/rules \
+      solana-superchargers/solana-indexer-skill/assets \
+      solana-superchargers/solana-indexer-skill/CLAUDE.md \
+      ~/.claude/skills/solana-indexer/
+```
+
+### Project-local install
+
+```bash
+CLAUDE_SKILLS_HOME=./.claude ./install.sh add solana-indexer
+```
+
+Installs into `./.claude/skills/solana-indexer/` of the current
+directory. Useful for committing the skill into a specific repo.
 
 > Want to install everything in the repo? `curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/install.sh | bash -s -- add all`
 
