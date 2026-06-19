@@ -75,7 +75,10 @@ jobs:
           done
           echo "all required subgraph files present"
       - name: Validate manifest YAML
-        run: python3 -c "import yaml; yaml.safe_load(open('solana-indexer-skill/skill/examples/subgraph-template/subgraph.yaml'))"
+        run: |
+          pip install pyyaml --quiet
+          python3 -c "import yaml; yaml.safe_load(open('solana-indexer-skill/skill/examples/subgraph-template/subgraph.yaml'))"
+          echo "subgraph.yaml parses"
       - name: Validate GraphQL schema parses
         run: |
           python3 -c "
