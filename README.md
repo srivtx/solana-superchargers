@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Solana AI Kit — Production-grade Solana skills that complement the Solana AI Kit ecosystem](/.github/assets/supercharger.jpg)](/.github/assets/supercharger.jpg)
+<a href="/.github/assets/supercharger.jpg"><img src="./.github/assets/supercharger.jpg" width="500" alt="solana-superchargers" /></a>
 
 # solana-superchargers
 
