@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/supercharger.jpg" width="600" alt="solana-superchargers" />
+[![Solana AI Kit — Production-grade Solana skills that complement the Solana AI Kit ecosystem](/.github/assets/supercharger.jpg)](/.github/assets/supercharger.jpg)
 
 # solana-superchargers
 
@@ -10,15 +10,26 @@ A curated set of production-grade skills that complement and extend the
 [Solana AI Kit](https://github.com/solanabr/solana-ai-kit) ecosystem. Every
 skill is self-contained, MIT-licensed, and verified against real code.
 
-[![Skills](https://img.shields.io/badge/skills-1%20%2B-blue?style=flat-square)](./SKILLS.md)
-[![License MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
-[![Install](https://img.shields.io/badge/install-curl%20%7C%20git-orange?style=flat-square)](#install)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-cc785c?style=flat-square)](https://claude.ai/code)
-[![Codex](https://img.shields.io/badge/Codex-ready-000000?style=flat-square)](https://openai.com/codex)
+[![CI](https://github.com/srivtx/solana-superchargers/actions/workflows/validate.yml/badge.svg)](https://github.com/srivtx/solana-superchargers/actions/workflows/validate.yml)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](./CHANGELOG.md)
+[![License MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![Solana](https://img.shields.io/badge/Solana-black?logo=solana)](https://solana.com)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-ready-cc785c)](https://claude.ai/code)
+[![Codex](https://img.shields.io/badge/Codex-ready-000000)](https://openai.com/codex)
 
 </div>
 
 ---
+
+## What's in v0.1
+
+- **1 skill** — `solana-indexer` (Geyser plugins, backfill, Postgres schemas, real-time streaming, cost optimization, production ops)
+- **9 references** — every fact cross-checked against real code and docs
+- **3 working examples** — `minimal-indexer-ts` (TypeScript, `tsc --noEmit` clean), `geyser-plugin/skeleton` (Rust, `cargo check` clean), `subgraph-template` (The Graph on Solana)
+- **2 agents** — `indexer-architect`, `indexer-qa`
+- **2 commands** — `/build-indexer`, `/backfill`
+- **1 rule** — `indexer-defaults.md`
+- **6 CI jobs** — `Skills`, `TypeScript examples`, `Subgraph template`, `Rust examples`, `Internal links`, `Frontmatter`
 
 ## Install the most popular skill
 
@@ -38,7 +49,7 @@ Code or Codex to pick it up.
 > | Skill | Curated link |
 > |---|---|
 > | `solana-indexer` | `…/solana-indexer-skill/install.sh \| bash` |
-> | _(more coming)_ | _(see [`SKILLS.md`](./SKILLS.md))_ |
+> | _(more coming — see [`SKILLS.md`](./SKILLS.md))_ | |
 
 ## Install everything (or pick a subset)
 
@@ -76,29 +87,6 @@ curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/in
 | `verify` | Check installed skills are valid |
 | `help` | Show usage |
 
-## Repository layout
-
-```
-solana-superchargers/
-├── install.sh              # multi-skill installer (add/remove/list/verify/presets)
-├── SKILLS.md               # marketplace index (parsed by install.sh)
-├── CONTRIBUTING.md         # how to add a new skill
-├── CHANGELOG.md            # version history
-├── LICENSE                 # MIT
-├── assets/                 # logos
-│   └── supercharger.png
-├── .github/workflows/      # CI: validate every skill on every push
-│   └── validate.yml
-└── solana-<name>-skill/    # one subdirectory per skill
-    ├── CLAUDE.md
-    ├── README.md
-    ├── install.sh         # per-skill one-liner (delegates to ../install.sh)
-    ├── skill/             # SKILL.md + references/ + examples/
-    ├── agents/            # specialized agents
-    ├── commands/          # slash commands
-    └── rules/             # auto-loading rules
-```
-
 ## Why a multi-skill repo
 
 Most Solana skills share the same primitives — they reference the same
@@ -114,6 +102,25 @@ foundation, they need the same testing setup. A multi-skill repo gives you:
 
 Each skill is still a self-contained directory that you can install
 independently. The repo structure doesn't change the per-skill contract.
+
+## Repository layout
+
+```
+solana-superchargers/
+├── install.sh              # multi-skill installer (add/remove/list/verify/presets)
+├── SKILLS.md               # marketplace index (parsed by install.sh)
+├── CONTRIBUTING.md         # how to add a new skill
+├── CHANGELOG.md            # version history
+├── LICENSE                 # MIT
+├── .github/
+│   ├── assets/             # logo + banner
+│   │   └── supercharger.jpg
+│   └── workflows/          # CI: validate every skill on every push
+│       └── validate.yml
+└── solana-<name>-skill/    # one subdirectory per skill
+    ├── install.sh         # per-skill one-liner (delegates to ../install.sh)
+    └── skill/             # SKILL.md + references/ + examples/ + agents/ + commands/ + rules/
+```
 
 ## Adding a new skill
 
@@ -134,4 +141,5 @@ version:
 ---
 
 <sub>Built by [@srivtx](https://github.com/srivtx) · A Superteam Earn
-submission · Used as a reference for the Solana AI Kit ecosystem</sub>
+submission · Used as a reference for the
+[Solana AI Kit](https://github.com/solanabr/solana-ai-kit) ecosystem</sub>
