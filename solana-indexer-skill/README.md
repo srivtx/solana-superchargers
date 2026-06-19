@@ -2,7 +2,7 @@
 
 A Claude Code / Codex skill for building **custom indexers** on Solana. Covers Geyser plugin development, backfill strategies, Postgres schema design, cost optimization, real-time streaming, testing, and production operations.
 
-> **Part of [solana-superchargers](https://github.com/srivtx/solana-superchargers)** — a curated set of skills that fill unclaimed gaps in the Solana AI Kit ecosystem.
+> **Part of [solana-superchargers](https://github.com/srivtx/solana-superchargers)** — a curated set of skills that complement and extend the Solana AI Kit ecosystem.
 
 ## Install this skill
 
@@ -40,7 +40,7 @@ Plus 3 working examples, 2 agents, 2 commands, and 1 rule.
 
 ## Why this exists
 
-The Solana AI Kit ecosystem has hundreds of skills (Helius, QuickNode, light-protocol, vulnhunter, code-recon, etc.) but **no skill teaches how to *build* an indexer**. Helius/QuickNode skills are *consumers* of their streams. The kit's `backend-async.md` has one 20-line polling pattern. This skill fills that gap end-to-end.
+The Solana AI Kit ecosystem has hundreds of skills (Helius, QuickNode, light-protocol, vulnhunter, code-recon, etc.) but **no skill teaches how to *build* an indexer**. Helius/QuickNode skills are *consumers* of their streams. The kit's `backend-async.md` has one 20-line polling pattern. This skill covers that ground end-to-end.
 
 Indexers are the backbone of every serious Solana dApp — DeFi dashboards, NFT marketplaces, gaming leaderboards, social graphs, analytics. This skill lets Claude design, build, test, and operate them.
 

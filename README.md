@@ -6,7 +6,7 @@
 
 **Production-grade Claude Code / Codex skills for Solana builders.**
 
-A curated set of skills that fill unclaimed gaps in the
+A curated set of production-grade skills that complement and extend the
 [Solana AI Kit](https://github.com/solanabr/solana-ai-kit) ecosystem. Every
 skill is self-contained, MIT-licensed, and verified against real code.
 
