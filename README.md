@@ -33,15 +33,14 @@ skill is self-contained, MIT-licensed, and verified against real code.
 
 ## Install the most popular skill
 
-The most popular entry point — `solana-indexer` — installs in one command:
+`solana-indexer` is the most-installed skill from this repo:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/solana-indexer-skill/install.sh | bash
 ```
 
-That copies the skill into `~/.claude/skills/solana-indexer/` (and
-`~/.codex/skills/solana-indexer/` if Codex is detected). Restart Claude
-Code or Codex to pick it up.
+Installs to `~/.claude/skills/solana-indexer/` and `~/.codex/skills/solana-indexer/`
+(if Codex is installed). Restart Claude Code or Codex.
 
 > **Other skills in this repo** (each has its own one-liner at
 > `https://raw.githubusercontent.com/srivtx/solana-superchargers/main/<skill>/install.sh`):
@@ -140,6 +139,5 @@ version:
 
 ---
 
-<sub>Built by [@srivtx](https://github.com/srivtx) · A Superteam Earn
-submission · Used as a reference for the
-[Solana AI Kit](https://github.com/solanabr/solana-ai-kit) ecosystem</sub>
+<sub>Built by [@srivtx](https://github.com/srivtx) · Used as a reference
+for the [Solana AI Kit](https://github.com/solanabr/solana-ai-kit) ecosystem</sub>

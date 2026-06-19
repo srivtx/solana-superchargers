@@ -30,15 +30,13 @@
 
 ## Install
 
-The curated one-liner — share this:
-
 ```bash
 curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/solana-indexer-skill/install.sh | bash
 ```
 
-That copies the skill into `~/.claude/skills/solana-indexer/` (and
-`~/.codex/skills/solana-indexer/` if Codex is detected). Restart Claude
-Code or Codex to pick it up.
+Installs to `~/.claude/skills/solana-indexer/` and
+`~/.codex/skills/solana-indexer/` (if Codex is installed). Restart
+Claude Code or Codex.
 
 > Want to install everything in the repo? `curl -fsSL https://raw.githubusercontent.com/srivtx/solana-superchargers/main/install.sh | bash -s -- add all`
 
@@ -65,13 +63,13 @@ Indexers are the backbone of every serious Solana dApp — DeFi dashboards, NFT 
 
 ## Quick start
 
-After install, in Claude Code:
+In Claude Code:
 
 ```
 /build-indexer "index Raydium CLMM swaps and positions on mainnet"
 ```
 
-Or just ask naturally:
+Or just talk to it:
 
 ```
 "Help me set up a Geyser gRPC plugin to index Magic Eden listings."
@@ -162,6 +160,5 @@ solana-indexer-skill/
 
 ---
 
-<sub>Built by [@srivtx](https://github.com/srivtx) · A Superteam Earn
-submission · Part of
+<sub>Built by [@srivtx](https://github.com/srivtx) · Part of
 [Solana AI Kit](https://github.com/solanabr/solana-ai-kit) ecosystem</sub>
