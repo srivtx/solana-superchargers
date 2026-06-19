@@ -1,3 +1,9 @@
+<div align="center">
+
+<a href="./assets/indexer.jpg"><img src="./assets/indexer.jpg" width="500" alt="solana-indexer skill" /></a>
+
+</div>
+
 # solana-indexer-skill
 
 A Claude Code / Codex skill for building **custom indexers** on Solana. Covers Geyser plugin development, backfill strategies, Postgres schema design, cost optimization, real-time streaming, testing, and production operations.
