@@ -146,23 +146,31 @@ list_presets() {
     warn "no presets defined"
     return
   fi
-  echo "$presets" | while IFS=$'\t' read -r kind pname list_; do
+  while IFS=$'\t' read -r kind pname list_; do
+    [[ "$kind" == "PRESET" ]] || continue
     IFS=',' read -ra arr <<< "$list_"
     printf "\n  ${C_BOLD}%s${C_RESET}  ${C_DIM}(%d skills)${C_RESET}\n" "$pname" "${#arr[@]}"
     for s in "${arr[@]}"; do
       printf "    · %s\n" "$s"
     done
-  done
+  done <<< "$presets"
   printf "\n  ${C_DIM}install with: ./install.sh add preset:<name>${C_RESET}\n"
 }
 
 list_categories() {
   head "Categories"
-  discover_skills | grep "^SKILL" | awk -F'\t' '{print $4}' | sort -u | while read -r cat; do
+  local cats
+  cats=$(discover_skills | grep "^SKILL" | awk -F'\t' '{print $4}' | sort -u)
+  if [[ -z "$cats" ]]; then
+    warn "no skills found"
+    return
+  fi
+  while read -r cat; do
+    [[ -n "$cat" ]] || continue
     local count
     count=$(discover_skills | grep "^SKILL" | awk -F'\t' -v c="$cat" '$4==c' | wc -l | tr -d ' ')
     printf "  ${C_BOLD}%-20s${C_RESET}  %d skills\n" "$cat" "$count"
-  done
+  done <<< "$cats"
 }
 
 show_info() {
@@ -270,8 +278,9 @@ verify_install() {
     return 1
   fi
   local total
-  total=$(echo "$skills" | grep -c "^SKILL" || echo 0)
-  echo "$skills" | grep "^SKILL" | while read -r line; do
+  total=$(echo "$skills" | awk '/^SKILL/{c++} END{print c+0}')
+  while read -r line; do
+    [[ "$line" =~ ^SKILL ]] || continue
     local name
     name=$(echo "$line" | cut -f2)
     if [[ -d "${INSTALL_DIR}/$name" ]] && [[ -f "${INSTALL_DIR}/$name/skill/SKILL.md" ]]; then
@@ -279,13 +288,16 @@ verify_install() {
     else
       warn "$name (not installed)"
     fi
-  done
-  local inst
-  inst=$(echo "$skills" | grep "^SKILL" | while read -r line; do
+  done <<< "$skills"
+  local inst=0
+  while read -r line; do
+    [[ "$line" =~ ^SKILL ]] || continue
     local n
     n=$(echo "$line" | cut -f2)
-    [[ -d "${INSTALL_DIR}/$n" ]] && [[ -f "${INSTALL_DIR}/$n/skill/SKILL.md" ]] && echo 1
-  done | wc -l | tr -d ' ')
+    if [[ -d "${INSTALL_DIR}/$n" ]] && [[ -f "${INSTALL_DIR}/$n/skill/SKILL.md" ]]; then
+      inst=$((inst + 1))
+    fi
+  done <<< "$skills"
   echo ""
   printf "  ${C_BOLD}%d / %d${C_RESET} skills installed at %s\n" "$inst" "$total" "$INSTALL_DIR"
 }
